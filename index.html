@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>牧牧，你好！</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-game">
+    <div class="game-container">
+        <h1>牧牧的单词大挑战</h1>
+
+        <div class="definition-container">
+            <p class="definition-label"><strong>中文释义：</strong></p> 
+            <p id="definition-text">正在加载...</p> 
+        </div>
+
+        <div class="answer-area">
+            <p id="current-answer">_ _ _ _ _</p> 
+        </div>
+
+        <div class="letters-area">
+            <p>请点击下方字母拼写单词：</p>
+            <div id="jumbled-letters">
+                </div>
+        </div>
+
+        <div class="feedback-area">
+            <p id="feedback-text">&nbsp;</p> 
+        </div>
+
+    <div class="controls">
+        <button id="hint-button">提示</button>
+        <button id="pronounce-button">发音</button> 
+        <button id="clear-attempt-button" style="background-color: #ffc107; color: #333;">清空</button> 
+        <button id="skip-button" style="background-color: #6c757d; color: white;">跳过</button> 
+        <button id="next-word-button" style="display: none;">下一个</button>
+    </div>
+        
+    <div class="progress-stats">
+        <h3>学习进度</h3>
+        <div class="progress-circle-container">
+            <div class="progress-circle" id="progress-circle" title="掌握进度"> 
+                <div class="progress-circle-inner">
+                    <span id="progress-mastered">--</span>/<span id="progress-total">--</span>
+                </div>
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 10px;" id="progress-label">掌握率: --%</p> 
+    </div>
+        
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

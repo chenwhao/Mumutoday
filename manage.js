@@ -525,11 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
              try {
-                 const updatedWord = {
-                     english_word: newEn,
-                     chinese_definition: newCn
-                     // 可以添加例句等
-                 };
                  const response = await fetch(`/api/words/${wordId}`, {
                      method: 'PUT',
                      headers: { 'Content-Type': 'application/json' },

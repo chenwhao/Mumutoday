@@ -1,0 +1,371 @@
+html {
+    //height: 100%;         /* 确保 html 元素是视口高度 */
+    //overflow: hidden;      /* 在 html 级别也禁止滚动 */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;/* 让 padding 和 border 不增加元素总宽高 */
+}
+
+*, *:before, *:after { /* 让所有元素的 box-sizing 继承自 html */
+    box-sizing: inherit;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    //height: 100%;         /* 让 body 也填满 html 高度 */
+    //overflow: hidden;      /* 在 body 级别也禁止滚动 */
+    margin: 0;
+    padding: 0;
+    position: relative;   /* 保持相对定位 */
+}
+
+/* 针对游戏页面的 body 进行更强的滚动控制 */
+body.page-game {
+    /* height: 100vh; */ /* 可以尝试用 vh 或保持 100% */
+    overflow: hidden;  /* 再次确认禁止滚动 */
+    overscroll-behavior-y: contain; 
+}
+
+
+.game-container {
+    background-color: white;
+    padding: 30px; 
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;        /* 在窄屏幕上宽度为 90% */
+    max-width: 600px;  /* 在窄屏幕上最大宽度 600px */
+
+    /* ▼▼▼ 确保或修改为这行 ▼▼▼ */
+    margin: 30px auto; /* 30px 上下边距, auto 左右边距 (实现水平居中) */
+    /* ▲▲▲ 确保或修改为这行 ▲▲▲ */
+
+    position: relative; /* 保持相对定位，为了右上角进度条 */
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.definition-container,
+.answer-area,
+.letters-area,
+.feedback-area,
+.controls {
+    margin-bottom: 25px;
+    min-height: 40px; /* 给 feedback 等区域一点最小高度 */
+}
+
+/* 添加或修改 .definition-container 样式 */
+.definition-container {
+    display: flex;           /* 启用 Flexbox 布局 */
+    flex-wrap: wrap;       /* 允许在空间不足时换行 */
+    justify-content: center; /* 水平居中整个“标签+内容”组合 */
+    align-items: baseline;   /* 让“中文释义：”和释义文本的文字基线对齐 */
+    gap: 8px;              /* 在“标签”和“内容”之间添加一些间隙 */
+    margin-bottom: 30px;   /* 调整与下方元素的间距 */
+    /* 可以移除或保留 min-height: 40px; */
+}
+
+/* (可选) 如果给标签的 <p> 加了 class="definition-label" */
+.definition-label {
+    margin-bottom: 0; /* 移除 P 标签默认的下边距，因为 Flexbox 会处理对齐 */
+    flex-shrink: 0; /* 防止标签被压缩 */
+}
+
+/* 添加或修改 #definition-text 样式 */
+#definition-text {
+    /* --- 基础样式 (从之前复制并调整) --- */
+     min-height: 1.5em; 
+     text-align: left; 
+     margin-bottom: 0; 
+     transition: background-color 0.3s ease; 
+
+    /* --- 醒目化样式 --- */
+    font-size: 1.7em;       /* 显著增大字号 (根据需要在 @media 里再调整) */
+    font-weight: 600;       /* 加粗 (600 比 normal 粗, 比 bold 可能细一点) */
+    color: #004085;         /* 使用较深的蓝色，与普通文本区分 */
+    background-color: #cfe2ff; /* 淡蓝色背景 */
+    padding: 10px 18px;     /* 增加内边距，让背景色更明显 */
+    border-radius: 6px;     /* 圆角 */
+    border-left: 5px solid #0056b3; /* 左侧加一个强调边框 */
+    display: inline-block; /* 让 padding 生效且宽度自适应内容 */
+}
+
+/* --- 加载状态样式 (可选微调) --- */
+#definition-text:empty::before { 
+     content: '正在加载...'; 
+     color: #6c757d; /* 加载文字颜色 */
+     font-weight: normal;
+     font-size: 0.8em; 
+     display: inline-block; /* 确保伪元素能显示 */
+     padding: 10px 18px; /* 保持和有内容时一样的内边距 */
+}
+
+#current-answer {
+    font-size: 2em;
+    letter-spacing: 0.5em; /* 让下划线分开点 */
+    color: #007bff; /* 答案区域用蓝色 */
+    font-weight: bold;
+    min-height: 1.5em;
+}
+
+#jumbled-letters {
+    margin-top: 10px;
+    min-height: 50px; /* 给字母按钮留空间 */
+    /* 后续会用 Flexbox 或 Grid 布局字母按钮 */
+}
+
+#jumbled-letters button { /* 预设字母按钮样式 */
+    font-size: 1.5em;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    min-width: 50px; /* 按钮最小宽度 */
+    text-align: center;
+}
+
+#jumbled-letters button:hover {
+    background-color: #eee;
+}
+
+#jumbled-letters button:active {
+     background-color: #ddd;
+}
+
+
+#feedback-text {
+    font-size: 1.1em;
+    font-weight: bold;
+    min-height: 1.5em; /* 避免提示信息出现/消失时页面跳动 */
+}
+
+/* 不同反馈信息的样式 (可以根据需要添加) */
+.feedback-correct {
+    color: green;
+}
+
+.feedback-incorrect {
+    color: red;
+}
+
+.feedback-loading {
+    color: #aaa;
+}
+
+.feedback-error {
+    color: orangered;
+}
+
+
+.controls button {
+    padding: 10px 20px;
+    font-size: 1em;
+    margin: 0 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+/* 添加在 style.css 文件末尾 */
+#jumbled-letters button:disabled {
+    background-color: #e9e9e9; /* 灰色背景 */
+    color: #999;          /* 灰色文字 */
+    cursor: not-allowed;   /* 禁用鼠标样式 */
+}
+
+/* 添加在 style.css 文件末尾 */
+.feedback-hint {
+    color: #ff9800; /* 提示用橙色或其他醒目颜色 */
+    font-style: italic;
+}
+
+/* 添加到 style.css 或 index.html 的 <style> 标签 */
+/* ============================
+   圆形进度条样式
+   ============================ */
+/* ============================
+   绝对定位的圆形进度条样式 
+   ============================ */
+.progress-stats {
+    position: absolute;  /* ▼▼▼ 使用绝对定位 ▼▼▼ */
+    top: 25px;           /* ▼▼▼ 距离 game-container 顶部 25px ▼▼▼ */
+    right: 30px;          /* ▼▼▼ 距离 game-container 右侧 30px ▼▼▼ */
+    width: 120px;        /* ▼▼▼ 给进度条区域一个固定宽度 ▼▼▼ */
+    padding: 10px;       /* 内边距 */
+    background-color: #f8f9fa; /* 可选：加个浅背景使其突出 */
+    border-radius: 8px;  /* 可选：圆角 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 可选：加点阴影 */
+    text-align: center;  /* 内部元素居中 */
+    border-top: none;    /* ▼▼▼ 移除之前的上边框 ▼▼▼ */
+    margin-top: 0;       /* ▼▼▼ 移除之前的上边距 ▼▼▼ */
+    padding-top: 0;      /* ▼▼▼ 移除之前的上内边距 ▼▼▼ */
+    z-index: 10;         /* ▼▼▼ 确保它在其他内容之上（如果需要）▼▼▼ */
+}
+
+/* 调整进度条标题的边距 */
+.progress-stats h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 0.9em; /* 标题可以小一点 */
+    color: #333;
+}
+
+/* 圆环容器不需要额外样式 */
+.progress-circle-container {
+   /* display: flex; justify-content: center; margin-bottom: 10px; margin-top: 5px; */ 
+   /* 上面这些不再需要，因为父级 text-align: center 且宽度固定 */
+   margin: 0 auto 5px auto; /* 让圆环在容器内水平居中，下方留点间距 */
+}
+
+/* 圆环本身的大小和颜色等样式保持不变 (或者按需调整) */
+.progress-circle {
+    --progress-percent: 0%; 
+    --circle-size: 80px;  /* ▼▼▼ 在右上角可以适当缩小圆环 ▼▼▼ */
+    --circle-border: 8px; /* ▼▼▼ 环可以细一点 ▼▼▼ */
+    --color-progress: #28a745; 
+    --color-background: #e9ecef; 
+
+    width: var(--circle-size); 
+    height: var(--circle-size);
+    border-radius: 50%; 
+    display: flex; /* 使用 flex 垂直居中内部文字 */
+    justify-content: center;
+    align-items: center;
+    background: conic-gradient(
+        var(--color-progress) var(--progress-percent), 
+        var(--color-background) var(--progress-percent)
+    );
+    position: relative; 
+    transition: background 0.4s ease-out; 
+    margin: 0 auto; /* 确保圆环在容器内水平居中 */
+}
+
+.progress-circle-inner {
+    width: calc(var(--circle-size) - 2 * var(--circle-border)); 
+    height: calc(var(--circle-size) - 2 * var(--circle-border));
+    background-color: white; 
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1em; /* ▼▼▼ 调整内部字体大小 ▼▼▼ */
+    font-weight: bold;
+    color: #333;
+}
+ /* 可以移除 #progress-mastered 和 #progress-total 的特定样式，让它们用 .progress-circle-inner 的样式 */
+/* #progress-mastered { ... } */
+/* #progress-total { ... } */
+
+/* 下方掌握率文字 */
+#progress-label { 
+     font-size: 0.85em; /* ▼▼▼ 可以缩小一点 ▼▼▼ */
+     color: #555;
+     text-align: center;
+     margin-top: 5px; /* 调整与圆环的距离 */
+}
+
+/* 移除或注释掉 @media 查询中针对 .progress-stats 的规则，因为现在用绝对定位了 */
+/* @media (min-width: 768px) { */
+    /* .progress-stats { margin-top: 40px; } */ /* <--- 删除或注释掉这行 */
+     /* .progress-circle { --circle-size: 120px; ... } */ /* <--- 圆环大小可以在主规则里调整，或保留这里的 */
+     /* ... */
+/* } */
+
+/* ============================
+   平板及以上屏幕样式 (例如 iPad)
+   ============================ */
+@media (min-width: 768px) { 
+    .game-container {
+        max-width: 90%; /* 或者 90%，让容器占据更多屏幕宽度 */
+        padding: 40px 50px; /* 增加左右内边距，上下也可以适当增加 */
+        margin-top: 14px; /* 距离顶部可以远一点 */
+        margin-bottom: 40px;
+    }
+    body { /* 或者只针对 .game-container 内部 */
+       /* font-size: 18px; */ /* 可以试着稍微增大基础字号 */
+    }
+
+    h1 {
+        font-size: 2.5em; /* 标题更大气 */
+    }
+
+    definition-text {
+        font-size: 2.4em; /* 释义更清晰 */
+    }
+
+    #current-answer {
+        font-size: 2.8em; /* 答案区/下划线更醒目 */
+        letter-spacing: 0.7em; /* 间距调整 */
+    }
+
+    .progress-stats { /* 进度统计也可以大一点 */
+        font-size: 1em; 
+        max-width: 350px; /* 稍微加宽 */
+    }
+     .progress-stats h3 {
+        font-size: 1.2em;
+    }
+
+    /* 控制按钮 (提示/发音/清空/下一个) */
+    .controls button {
+        padding: 15px 30px; /* 大幅增加内边距 */
+        font-size: 1.1em;  /* 增大字号 */
+        margin: 5px 15px; /* 增加按钮间距 */
+    }
+
+    /* 字母按钮 */
+    #jumbled-letters button {
+        font-size: 2em;     /* 字母更大 */
+        padding: 18px 22px; /* 增加内边距 */
+        min-width: 70px;    /* 确保最小宽度 */
+        margin: 8px;        /* 增加字母间距 (如果不用 gap) */
+    }
+
+    /* 让字母按钮区域使用 Flex 换行居中 */
+     #jumbled-letters {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px; /* 使用 gap 属性定义间距更佳 */
+        margin-top: 15px;
+    }
+     /* 如果用了 gap, 可以去掉 button 的 margin */
+     #jumbled-letters button {
+         margin: 0; 
+     }
+    /* 在这里添加针对宽屏的样式 */
+
+}
+
+/* 添加到 style.css 文件末尾 */
+
+/* “下一个”按钮在答对时的特殊样式 */
+.next-button-correct {
+    background-color: #28a745 !important; /* 醒目的绿色 */
+    border-color: #1e7e34 !important; /* 深一点的绿色边框 */
+    /* 可以加点动画效果？ */
+    /* animation: pulse 1s infinite; */
+}
+
+.next-button-correct:hover {
+     background-color: #218838 !important; /* 鼠标悬停时更深的绿色 */
+}
+
+/* (可选) 定义一个简单的跳动动画 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+} 

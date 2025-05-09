@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词库管理</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* 为管理页面添加一些特定样式 */
+        body { 
+            /* 覆盖 style.css 的居中，让内容从顶部开始 */
+            display: block; 
+            min-height: auto; 
+            background-color: #f8f9fa; /* 淡灰色背景 */
+        } 
+        .manage-container { 
+            max-width: 800px; 
+            margin: 30px auto; /* 上下边距，左右自动居中 */
+            padding: 25px; 
+            background-color: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .add-word-form, .word-list-section { 
+            margin-bottom: 30px; 
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee; /* 分隔线 */
+        }
+         .word-list-section h2 { margin-top: 0;}
+
+        .add-word-form label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold;
+        }
+        .add-word-form input[type="text"] { 
+            width: calc(100% - 24px); /* 减去 padding 和 border */
+            padding: 10px; 
+            margin-bottom: 15px; /* 输入框间距 */
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 1em;
+        }
+        .add-word-form button { 
+            padding: 10px 20px; 
+            background-color: #28a745; /* 绿色 */
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 1em;
+        }
+        .add-word-form button:hover { background-color: #218838; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background-color: #e9ecef; font-weight: bold; } /* 表头样式 */
+        td { background-color: #fff; }
+        tr:nth-child(even) td { background-color: #f8f9fa; } /* 斑马条纹 */
+
+        .actions button { 
+            margin-right: 8px; 
+            margin-bottom: 5px; /* 小屏幕换行时 */
+            padding: 6px 10px; 
+            font-size: 0.9em; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            border: none; 
+            color: white; 
+            min-width: 50px;
+        }
+        .edit-button { background-color: #ffc107; color: #333; } /* 黄色 */
+        .delete-button { background-color: #dc3545; } /* 红色 */
+        .edit-button:hover { background-color: #e0a800; }
+        .delete-button:hover { background-color: #c82333; }
+        .save-button {
+            background-color: #28a745; /* 绿色，和“添加单词”按钮一致 */
+            color: white;
+            /* 复制其他按钮共有的样式，保持一致性 */
+            margin-right: 8px; 
+            margin-bottom: 5px;
+            padding: 6px 10px; 
+            font-size: 0.9em; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            border: none;
+            min-width: 50px;
+        }
+        .save-button:hover {
+            background-color: #218838; /* 鼠标悬停时深一点的绿色 */
+        }
+
+        .cancel-button {
+            background-color: #6c757d; /* 中性灰色 */
+            color: white;
+            /* 复制其他按钮共有的样式 */
+            margin-right: 8px; 
+            margin-bottom: 5px;
+            padding: 6px 10px; 
+            font-size: 0.9em; 
+            cursor: pointer; 
+            border-radius: 3px; 
+            border: none;
+            min-width: 50px;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268; /* 鼠标悬停时深一点的灰色 */
+        }
+
+        /* (可选) 为保存/取消按钮在禁用时（比如点击保存后）也添加样式 */
+        .save-button:disabled, 
+        .cancel-button:disabled {
+            background-color: #ccc; /* 更浅的灰色 */
+            cursor: not-allowed;
+            opacity: 0.65; /* 半透明效果 */
+        }
+
+        /* 错误信息样式 */
+        .error-message { 
+            color: #dc3545; /* 红色 */
+            margin-top: 10px; 
+            font-size: 0.9em;
+            min-height: 1.2em; /* 避免没错误时跳动 */
+        }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="manage-container">
+        <h1>单词库管理</h1>
+
+        <div class="add-word-form">
+            <h2>添加新单词</h2>
+            <form id="add-word-form">
+                <div>
+                    <label for="english-word">英文单词:</label>
+                    <input type="text" id="english-word" name="english_word" required>
+                </div>
+                <div>
+                    <label for="chinese-definition">中文释义:</label>
+                    <input type="text" id="chinese-definition" name="chinese_definition" required>
+                </div>
+                <div>
+                    <label for="week-tag">时间标签 (例如 2025051W):</label>
+                    <input type="text" id="week-tag" name="week_tag">
+                </div>
+                <button type="submit">添加单词</button>
+            </form>
+            <p id="add-error-message" class="error-message">&nbsp;</p> </div>
+
+        <hr style="margin-top: 30px; margin-bottom: 30px; border: 0; border-top: 1px solid #eee;"> 
+
+        <div class="import-export-section">
+            <h2>导入 / 导出</h2>
+
+            <div style="margin-bottom: 30px;">
+                <p>将当前单词库的所有单词导出为一个 CSV 文件。</p>
+                <button id="export-csv-button" style="padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;">导出为 CSV</button>
+            </div>
+
+            <div>
+                <p>从 CSV 文件导入单词。</p>
+                <p style="font-size: 0.9em; color: #6c757d;">(文件必须是 UTF-8 编码，包含表头行: <code>english_word</code>, <code>chinese_definition</code>。可选列: <code>example_sentence_en</code>, <code>example_sentence_cn</code>。已存在的英文单词将被忽略。)</p>
+                <form id="import-csv-form">
+                    <label for="csv-file-input" style="display: block; margin-bottom: 10px; font-weight: bold;">选择 CSV 文件:</label>
+                    <input type="file" id="csv-file-input" name="csvfile" accept=".csv" required style="margin-bottom: 15px; display: block;"> 
+                    <button type="submit" style="padding: 10px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;">导入选定文件</button>
+                </form>
+                <p id="import-status-message" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;">&nbsp;</p> 
+            </div>
+        </div>
+        <hr style="margin-top: 30px; margin-bottom: 30px; border: 0; border-top: 1px solid #eee;">
+
+        <div class="word-list-section">
+            <h2>单词列表</h2>
+            <div class="filter-section" style="margin-bottom: 15px; padding: 10px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; gap: 10px;">
+                <label for="filter-week-tag" style="font-weight: bold; white-space: nowrap;">按时间标签筛选:</label>
+                <input type="text" id="filter-week-tag" placeholder="例如 2025051W" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <button id="filter-button" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">筛选</button>
+                <button id="clear-filter-button" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">显示全部</button>
+            </div>
+
+            <div class="start-session-section" style="margin-bottom: 20px; padding: 15px; background-color: #e9f5ff; border: 1px solid #b3d7ff; border-radius: 5px; display: flex; align-items: center; justify-content: space-between;">
+                <button id="start-session-button" style="padding: 10px 20px; background-color: #fd7e14; color: white; border:none; border-radius: 4px; cursor: pointer; font-size: 1em;" disabled>用选中单词开始练习</button>
+                <span id="selected-count" style="font-weight: bold; color: #0056b3;">已选: 0 个单词</span>
+            </div>
+            <p id="list-error-message" class="error-message">&nbsp;</p> 
+
+            <table><thead>
+                    <tr>
+                        <th style="width: 5%;"><input type="checkbox" id="select-all-checkbox" title="全选/全不选"></th> 
+                        <th style="width: 8%;">ID</th> <th style="width: 25%;">英文单词</th>
+                        <th style="width: 25%;">中文释义</th>
+                        <th style="width: 12%;">时间标签</th> <th style="width: 10%;">状态</th> 
+                        <th style="width: 15%;">操作</th> </tr>
+                </thead>
+
+                <tbody id="word-list-body">
+                    <tr><td colspan="7" style="text-align: center; padding: 20px;">正在加载...</td></tr> 
+                </tbody>
+            </table>
+        </div> 
+
+        <p style="text-align: center; margin-top: 30px;"><a href="/">返回游戏页面</a></p>
+    </div>
+
+    <script src="manage.js"></script>
+</body>
+</html>
